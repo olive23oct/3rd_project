@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- mapper 태그의 namespace 속성 필수 작성 -->
+<mapper namespace="ActivityDAO">
+
+	<insert id="insertActivity" parameterType="activity">
+		INSERT INTO ACTIVITY 
+				(BOARD_INDEX, USER_ID, ACTIVITY_ID, ACTION, REG_DATE)
+		VALUES ((SELECT BOARD_INDEX FROM BOARD 
+                  WHERE CREATOR=#{user_id} 
+		            AND CREATE_DATE=(SELECT MAX(CREATE_DATE) 
+		            				   FROM BOARD 
+                                       WHERE CREATOR=#{user_id})
+                 ), 
+		        #{user_id}, ('act_id_'||ACTIVITY_ID_SEQ.NEXTVAL), #{action}, to_date(sysdate,'yyyy.mm.dd hh24:mi'))
+	</insert>
+
+	<select id="getActivity" parameterType="activity" resultType="activity">
+		SELECT * FROM ACTIVITY
+		WHERE ACTIVITY_ID=#{activity_id} 
+	</select> 
+   
+	<select id="getActivityList" parameterType="activity" resultType="activity">
+		SELECT * FROM ACTIVITY, BOARD
+		 WHERE ACTIVITY.BOARD_INDEX=BOARD.BOARD_INDEX
+	</select> 
+   	
+	<!-- <delete id="deleteAttachment" parameterType="activity">
+		DELETE FROM ACTIVITY 
+		WHERE ACTIVITY_ID=#{activity_id} 
+	</delete> -->
+   
+   
+   
+   
+   
+</mapper>

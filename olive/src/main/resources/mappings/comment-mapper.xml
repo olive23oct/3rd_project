@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- mapper 태그의 namespace 속성 필수 작성 -->
+<mapper namespace="CommentDAO">
+
+   <insert id="insertComment" parameterType="comment">
+      INSERT INTO COMMENTS (BOARD_INDEX, WRITER, COMMENT_ID, COMMENT_CONTENT, CREATE_DATE)
+        VALUES (#{board_index}, #{writer} , ('c_id_' || COMMENT_ID_SEQ.nextval), #{comment_content}, SYSDATE)
+   </insert>
+
+ 	<select id="getComment" parameterType="String" resultType="comment">
+		SELECT BOARD_INDEX, WRITER, COMMENT_ID , COMMENT_CONTENT, CREATE_DATE FROM COMMENTS 
+		  WHERE BOARD_INDEX= #{board_index} 
+		    ORDER BY CREATE_DATE DESC
+	</select>  
+  	
+  	<delete id="deleteComment" parameterType="String">
+		DELETE FROM COMMENTS 
+      	  WHERE COMMENT_ID=#{comment_id}  	
+  	</delete>
+  	
+  	<update id="updateComment" parameterType="comment">
+ 	<!-- 댓글 내용 수정   -->
+	UPDATE COMMENTS SET COMMENT_CONTENT=#{comment_content}
+	  WHERE COMMENT_ID = #{comment_id}
+</update>
+</mapper>

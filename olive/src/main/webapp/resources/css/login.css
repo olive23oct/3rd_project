@@ -1,0 +1,29 @@
+body {
+	background-image:
+		url("https://images.unsplash.com/photo-1534099946341-34fe5ef39eef?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80");
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+.navbar {
+	background: transparent;
+}
+
+#brandLogo {
+	height: 40px;
+	position: relative;
+	bottom: 10px;
+}
+
+.container {
+	height: 100%;
+	align-content: center;
+}
+
+.card {
+	height: 370px;
+	margin-top: auto;
+	margin-bottom: auto;
+	width: 400px;
+	background-color: rgba(0, 0, 0, 0.5) !important;
+}

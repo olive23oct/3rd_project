@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- mapper 태그의 namespace 속성 필수 작성 -->
+<mapper namespace="AttachmentDAO">
+
+   <insert id="insertAttachment" parameterType="attachment">
+      INSERT INTO ATTACHMENT
+      (BOARD_INDEX, ATTACHMENT_ID, FILE_NAME, ATTACHMENT_DATE, ORIGINAL_FILE_NAME)
+      VALUES (#{board_index}, ('a_id_' || ATTACHMENT_ID_SEQ.nextval), #{file_name} , SYSDATE, #{original_file_name})
+   </insert>
+
+   <select id="getAttachment" parameterType="String" resultType="attachment">
+      SELECT * FROM ATTACHMENT
+      WHERE BOARD_INDEX = #{board_index}      
+   </select> 
+   
+   <delete id="deleteAttachment" parameterType="String">
+      DELETE FROM ATTACHMENT 
+      WHERE ATTACHMENT_ID=#{attachment_id} 
+   </delete>
+   
+   
+   
+   
+   
+</mapper>

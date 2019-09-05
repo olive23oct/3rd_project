@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- mapper 태그의 namespace 속성 필수 작성 -->
+<mapper namespace="MemberDAO">
+
+	<insert id="insertMember" parameterType="member">
+		INSERT INTO MEMBER (USER_ID, BOARD_INDEX, ADMIN,ADD_DATE)
+		<if test="insertCondition == 'createBoard'">
+			VALUES ( #{user_id},
+			(SELECT BOARD_INDEX FROM BOARD WHERE
+			CREATOR=#{user_id} AND
+			CREATE_DATE=(SELECT MAX(CREATE_DATE) FROM BOARD
+			WHERE
+			CREATOR=#{user_id})),
+			'admin', SYSDATE)
+		</if>
+		<if test="insertCondition == 'addMember'">
+			VALUES ( #{user_id}, #{board_index}, 'normal', SYSDATE)
+		</if>
+	</insert>
+
+	<update id="updateMember" parameterType="member"> <!-- 보드멤버의 권한 수정 -->
+		UPDATE MEMBER SET ADMIN=#{admin}
+		WHERE USER_ID = #{user_id} AND BOARD_INDEX=#{board_index}
+	</update>
+
+	<delete id="deleteMember" parameterType="member"> <!-- 보드멤버 삭제 -->
+		DELETE FROM MEMBER
+		WHERE USER_ID = #{user_id} AND
+		BOARD_INDEX=#{board_index}
+	</delete>
+
+	<select id="getMemberList" parameterType="member"
+		resultType="user">
+		SELECT USERS.*
+		FROM USERS, MEMBER
+		WHERE USERS.USER_ID=MEMBER.USER_ID
+		AND MEMBER.BOARD_INDEX=#{board_index}
+	</select>
+
+	<!-- <select id="getMemberList" parameterType="member" -->
+	<!-- resultType="user"> -->
+	<!-- SELECT USERS.* FROM USERS, MEMBER -->
+	<!-- WHERE USERS.USER_ID = MEMBER.USER_ID -->
+	<!-- AND USERS.USER_ID=(SELECT USER_ID FROM MEMBER WHERE BOARD_INDEX=#{board_index}) -->
+	<!-- </select> -->
+
+	<!-- 20190716 -->
+	<!-- 광호 -->
+	<!-- 최초 보드 생성시 맴버 vo 가져오기 -->
+	<select id="getMember" parameterType="member"
+		resultType="member">
+		SELECT *
+		FROM MEMBER
+		WHERE ADD_DATE = (SELECT MAX(ADD_DATE) FROM MEMBER WHERE
+		USER_ID=#{user_id})
+	</select>
+
+
+
+</mapper>
+

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+  <settings>
+  	<setting name="jdbcTypeForNull" value="NULL"/>
+  </settings>
+  <typeAliases>
+	<typeAlias alias="attachment" type="com.olive.attachment.service.AttachmentVO"/>
+	<typeAlias alias="board" type="com.olive.board.service.BoardVO"/>
+	<typeAlias alias="checklist" type="com.olive.checklist.service.ChecklistVO"/>
+	<typeAlias alias="user" type="com.olive.user.service.UserVO"/>
+	<typeAlias alias="member" type="com.olive.member.service.MemberVO"/>
+	<typeAlias alias="comment" type="com.olive.comment.service.CommentVO"/>
+	<typeAlias alias="activity" type="com.olive.activity.service.ActivityVO"/>
+	<typeAlias alias="schedule" type="com.olive.schedule.service.ScheduleVO"/>
+  </typeAliases>
+  
+  <mappers>
+    <mapper resource="mappings/attachment-mapper.xml"/>
+    <mapper resource="mappings/board-mapper.xml"/>
+    <mapper resource="mappings/checklist-mapper.xml"/>
+    <mapper resource="mappings/user-mapper.xml"/>
+    <mapper resource="mappings/member-mapper.xml"/>
+    <mapper resource="mappings/comment-mapper.xml"/>
+    <mapper resource="mappings/activity-mapper.xml"/>
+	<mapper resource="mappings/schedule-mapper.xml"/>
+  </mappers>
+  
+</configuration>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

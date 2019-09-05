@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--  mapper 태그의 namespace 속성 필수 작성  -->
+<mapper namespace="ChecklistDAO">
+
+<insert id="insertChecklistTitle" parameterType="checklist">
+   <!-- 체크리스트 제목 생성   -->
+   INSERT INTO CHECKLIST (BOARD_INDEX, CHECKLIST_ID, CHECKLIST_TITLE, CREATE_DATE) 
+     VALUES (#{board_index},('ch_id_' || CHECKLIST_ID_SEQ.nextval),#{checklist_title}, SYSDATE)
+</insert>
+
+<insert id="insertChecklistContent" parameterType="checklist">
+   <!-- 체크리스트 내용 입력 체크여부 기본 0   -->
+   INSERT INTO CHECKLIST (BOARD_INDEX, CHECKLIST_ID, CHECKLIST_CHECKED, CHECKLIST_CONTENT, CREATE_DATE) 
+     VALUES (#{board_index},('ch_id_' || CHECKLIST_ID_SEQ.nextval), '0', #{checklist_content}, SYSDATE)
+</insert>
+
+<select id="getChecklist" parameterType="String" resultType="checklist">
+ <!-- 체크리스트 제목,체크여부,체크리스트 내용 겟  -->
+<!-- SELECT * FROM CHECKLIST WHERE BOARD_INDEX = #{board_index} -->
+<!-- SELECT *, ROUND (COUNT(DECODE(CHECKLIST_CHECKED, 1, 1)) / (COUNT(DECODE(CHECKLIST_CHECKED, 1, 1)) + COUNT(DECODE(CHECKLIST_CHECKED, 0, 1))) * 100 , 0) AS TEST 
+FROM CHECKLIST WHERE BOARD_INDEX= #{board_index} 
+  ORDER BY CREATE_DATE  -->
+<!--   SELECT * FROM CHECKLIST WHERE BOARD_INDEX= #{board_index} 
+  ORDER BY CREATE_DATE  -->
+   SELECT BOARD_INDEX,   CHECKLIST_ID, CHECKLIST_TITLE, CHECKLIST_CHECKED, CHECKLIST_CONTENT, CREATE_DATE
+      , (SELECT ROUND (COUNT(DECODE(CHECKLIST_CHECKED, 1, 1)) /(COUNT(DECODE(CHECKLIST_CHECKED, 1,NULL,1)) + COUNT(DECODE(CHECKLIST_CHECKED, 0, 1))) * 100 , 0) 
+             FROM CHECKLIST 
+               WHERE BOARD_INDEX= #{board_index}) AS percent
+     FROM CHECKLIST    
+       WHERE BOARD_INDEX= #{board_index}
+         ORDER BY CREATE_DATE 
+</select>
+
+<update id="updateChecklistTitle" parameterType="checklist">
+    <!-- 체크리스트 내용 수정   -->
+   UPDATE CHECKLIST SET CHECKLIST_TITLE=#{checklist_title} 
+     WHERE CHECKLIST_ID = #{checklist_id}
+</update>
+
+<update id="updateChecklistContent" parameterType="checklist">
+    <!-- 체크리스트 내용 수정   -->
+   UPDATE CHECKLIST SET CHECKLIST_CONTENT=#{checklist_content} 
+     WHERE CHECKLIST_ID = #{checklist_id}
+</update>
+
+<update id="updateChecklistChecked" parameterType="checklist">
+<!-- 체크리스트 체크여부 수정   -->
+   <choose> 
+      <when test="checklist_checked == 0">
+         UPDATE CHECKLIST SET CHECKLIST_CHECKED = '1'
+            WHERE CHECKLIST_ID = #{checklist_id}
+      </when>
+      <otherwise>
+         UPDATE CHECKLIST SET CHECKLIST_CHECKED = '0'
+            WHERE CHECKLIST_ID = #{checklist_id}
+      </otherwise>
+   </choose>
+</update>
+
+<delete id="deleteChecklist" parameterType="String">
+   <!-- 체크리스트 콘텐트 삭제   -->
+   DELETE FROM CHECKLIST WHERE 
+     CHECKLIST_ID = #{checklist_id}
+</delete>
+
+<delete id="deleteChecklistTitle" parameterType="String">
+   <!-- 체크리스트 타이틀 삭제   -->
+   DELETE FROM CHECKLIST WHERE 
+     BOARD_INDEX= #{board_index}
+</delete>
+
+</mapper>

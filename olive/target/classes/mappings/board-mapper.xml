@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- mapper 태그의 namespace 속성 필수 작성 -->
+<mapper namespace="BoardDAO">
+
+	<insert id="insertBoard" parameterType="Map">
+		INSERT INTO BOARD (BOARD_INDEX, BOARD_ID, TITLE, CREATOR, CREATE_DATE, ARCHIVE, COLOR)
+		VALUES (('b_idx_' || BOARD_INDEX_SEQ.nextval), ('b_id_' || BOARD_ID_SEQ.nextval), 
+				#{title}, #{user_id}, SYSDATE, 'n', #{color})
+	</insert>
+
+	<insert id="insertList" parameterType="board">
+		INSERT INTO BOARD
+		(BOARD_INDEX, BOARD_ID, LIST_ID, TITLE, LIST_ORDER, CREATOR, CREATE_DATE)
+		VALUES (('b_idx_' || BOARD_INDEX_SEQ.nextval), #{board_id}, ('l_id_' || LIST_ID_SEQ.nextval), #{title},
+		(SELECT NVL(MAX(LIST_ORDER),0) + 1 FROM BOARD WHERE BOARD_ID=#{board_id}), #{creator}, SYSDATE)
+	</insert>
+
+	<insert id="insertCard" parameterType="board">       <!-- 카드 추가 -->
+		INSERT INTO BOARD ( BOARD_INDEX, BOARD_ID, LIST_ID, CARD_ID, TITLE,
+		LIST_ORDER, CARD_ORDER, CREATOR, CREATE_DATE)
+		VALUES ( 'b_idx_' || BOARD_INDEX_SEQ.nextval, #{board_id}, #{list_id},
+		'c_id_' || CARD_ID_SEQ.nextval, #{title},
+		#{list_order},
+		(SELECT NVL(MAX(CARD_ORDER),0) + 1 FROM BOARD WHERE LIST_ID=#{list_id}), #{creator}, SYSDATE)
+	</insert>
+
+	
+	<select id="getBoard" parameterType="member" resultType="board">
+		SELECT *
+		FROM BOARD
+		WHERE BOARD_ID=(SELECT BOARD_ID FROM BOARD WHERE BOARD_INDEX=#{board_index}) 
+		  AND (ARCHIVE!='y' OR ARCHIVE IS NULL)
+		ORDER BY LIST_ORDER NULLS FIRST,
+		CARD_ORDER NULLS FIRST
+	</select>
+
+	<select id="getNewBoard" parameterType="member"
+		resultType="board">
+		SELECT * FROM BOARD
+		WHERE CREATOR=#{user_id} 
+		  AND CREATE_DATE=(SELECT MAX(CREATE_DATE) FROM BOARD WHERE CREATOR=#{user_id})
+	</select>
+
+	<update id="updateTitle" parameterType="board">
+		UPDATE BOARD SET
+		TITLE=#{title}
+		WHERE BOARD_INDEX=#{board_index}
+	</update>
+
+	<delete id="deleteBoard" parameterType="board">
+		DELETE FROM BOARD WHERE
+		<if test="deleteCondition == board">
+			BOARD_ID=#{board_id} AND ARCHIVE='y'
+		</if>
+		<if test="deleteCondition == list">
+			LIST_ID=#{list_id} AND ARCHIVE='y'
+		</if>
+		<if test="deleteCondition == card">
+			CARD_ID=#{card_id} AND ARCHIVE='y'
+		</if>
+	</delete>
+
+	<select id="getBoardList" parameterType="user"
+		resultType="board">
+		SELECT BOARD.BOARD_INDEX, BOARD_ID, LIST_ID, CARD_ID, COLOR,
+			   TITLE, CONTENT, LIST_ORDER, CARD_ORDER, ARCHIVE, CREATOR, CREATE_DATE
+		  FROM BOARD, MEMBER
+		 WHERE BOARD.BOARD_INDEX = MEMBER.BOARD_INDEX 
+		   AND MEMBER.USER_ID=#{user_id} 
+		   AND BOARD.ARCHIVE != 'y'
+		 ORDER BY BOARD.CREATE_DATE 
+	</select>
+
+	<!-- 2019.07.05 아카이브로 보내기 이광호 -->
+	<update id="updateArchive" parameterType="board">
+		UPDATE BOARD SET
+		ARCHIVE=#{archive}
+		<if test="archiveCondition==board">
+			WHERE BOARD_ID=#{board_id}
+		</if>
+		<if test="archiveCondition==list">
+			WHERE LIST_ID=#{list_id} 
+		</if>
+		<if test="archiveCondition==card">
+			WHERE CARD_ID=#{card_id}
+		</if>
+	</update>
+
+	<update id="updateCardContent" parameterType="board">
+		UPDATE BOARD SET CONTENT=#{content}
+		WHERE BOARD_INDEX = #{board_index}
+	</update>
+
+	<select id="getCard" parameterType="String" resultType="board">
+		SELECT * FROM BOARD
+		WHERE BOARD_INDEX = #{board_index}
+	</select>
+	
+	<!-- 2019.07.15 보드설명추가 유희진-->
+   	<update id="updateBoardContent" parameterType="board">
+		UPDATE BOARD SET CONTENT=#{content}
+        WHERE BOARD_INDEX = #{board_index}
+   	</update>
+   
+   	<!-- 2019.07.16 보드 배경색 변경 유희진-->
+   	<update id="updateBoardColor" parameterType="board">
+      	UPDATE BOARD SET COLOR=#{color}
+      	WHERE BOARD_INDEX = #{board_index}
+   	</update>
+	<!-- 2019.07.16 리스트 오더 업데이트 -->
+   	<update id="updateListOrder" parameterType="Map">
+   		UPDATE BOARD SET LIST_ORDER=#{current_list_order}
+      	WHERE LIST_ID = (SELECT LIST_ID FROM BOARD WHERE BOARD_INDEX = #{board_index} )
+   	</update>
+   	
+   	<update id="updateOthersListOrderRight" parameterType="Map">
+      	<![CDATA[
+      	UPDATE BOARD SET LIST_ORDER = LIST_ORDER - 1
+      	WHERE LIST_ORDER <= #{current_list_order} AND LIST_ORDER > #{start_list_order}
+      	AND BOARD_ID = (SELECT BOARD_ID FROM BOARD WHERE BOARD_INDEX = #{board_index} )
+      	]]>
+   	</update>
+   	
+   	<update id="updateOthersListOrderLeft" parameterType="Map">
+   		<![CDATA[
+      	UPDATE BOARD SET LIST_ORDER = LIST_ORDER + 1
+      	WHERE LIST_ORDER >= #{current_list_order} AND LIST_ORDER < #{start_list_order}
+      	AND BOARD_ID = (SELECT BOARD_ID FROM BOARD WHERE BOARD_INDEX = #{board_index} )
+      	]]>
+   	</update>
+   	
+   	<!-- 2019.07.17 보드 내 김다희 -->
+   	<select id="searchBoard" parameterType="board" resultType="board">
+        SELECT * FROM BOARD     
+        where board_id=#{board_id}
+        and (TITLE LIKE '%'||#{title}||'%' OR CONTENT LIKE '%'||#{content}||'%')
+    </select>
+
+    <!-- 2019.07.18 전체 김다희 -->
+    <select id="searchBoardAll" parameterType="board" resultType="board">
+    	SELECT * FROM BOARD
+        WHERE TITLE LIKE '%'||#{title}||'%' OR CONTENT LIKE '%'||#{content}||'%'      
+   	</select>
+   	
+   	
+</mapper>

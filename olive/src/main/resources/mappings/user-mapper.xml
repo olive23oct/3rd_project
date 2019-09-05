@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- mapper 태그의 namespace 속성 필수 작성 -->
+<mapper namespace="UserDAO">
+
+	<insert id="insertUser" parameterType="user">
+		INSERT INTO USERS (USER_ID, EMAIL, PASSWORD, NAME, IMAGE)
+		VALUES (('u_id_' || USER_ID_SEQ.nextval), #{email}, #{password}, #{name},
+		'basic.jpg')
+	</insert>
+
+	<update id="updateUser" parameterType="user">
+		UPDATE USERS SET EMAIL=#{email}, PASSWORD=#{password}, NAME=#{name},
+		IMAGE=#{image}
+		WHERE USER_ID = #{user_id}
+	</update>
+
+	<delete id="deleteUser" parameterType="user">
+		DELETE FROM USERS
+		WHERE USER_ID = #{user_id}
+	</delete>
+
+	<select id="logIn" parameterType="user" resultType="user">     <!-- 로그인 -->
+		SELECT * FROM USERS
+		WHERE EMAIL=#{email}
+	</select>
+
+	<select id="checkEmail" parameterType="user" resultType="user">     <!-- ID 중복체크 -->
+		SELECT email FROM USERS
+		WHERE EMAIL=#{email}
+	</select>
+	<!-- 20190709 이광호
+	유저검색기능 추가 -->
+	<select id="searchUser" parameterType="user" resultType="user">
+		SELECT * FROM USERS
+		WHERE EMAIL=#{email} OR NAME=#{name}
+	</select>
+</mapper>

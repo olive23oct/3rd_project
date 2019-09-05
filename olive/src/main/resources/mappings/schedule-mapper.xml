@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- mapper 태그의 namespace 속성 필수 작성 -->
+<mapper namespace="ScheduleDAO">	
+
+	<insert id="insertSchedule" parameterType="schedule">
+		INSERT INTO SCHEDULE (BOARD_INDEX, SCHEDULE_ID, START_DATE, END_DATE)
+		VALUES (#{board_index}, ('s_id_' || SCHEDULE_ID_SEQ.nextval)
+				, #{start_date}, #{end_date})
+	</insert>
+	
+	<select id="getSchedule" parameterType="String" resultType="schedule">
+		SELECT * FROM SCHEDULE WHERE BOARD_INDEX=#{board_index}
+	</select>
+
+	<select id="getScheduleList" parameterType="String" resultType="schedule">
+		SELECT SCHEDULE.*, BOARD.TITLE
+		FROM SCHEDULE, BOARD
+		WHERE SCHEDULE.BOARD_INDEX = BOARD.BOARD_INDEX
+		AND BOARD.BOARD_ID = #{board_id}
+	</select>
+	
+	<update id="updateSchedule" parameterType="schedule">
+		UPDATE SCHEDULE SET START_DATE=#{start_date}, END_DATE=#{end_date}
+		WHERE BOARD_INDEX=#{board_index}
+	</update>
+	
+	<delete id="deleteSchedule"  parameterType="schedule">
+		DELETE FROM SCHEDULE
+		WHERE BOARD_INDEX=#{board_index}
+	</delete>
+	
+	
+</mapper>
+
